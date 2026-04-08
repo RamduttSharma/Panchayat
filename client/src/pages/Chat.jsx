@@ -90,9 +90,15 @@ const Chat = () => {
     setFile(null);
   };
 
-  const handleTyping = () => {
+  const handleTyping = (e) => {
+  // Enter press → send message
+  if (e.key === "Enter") {
+    e.preventDefault(); // newline stop
+    sendMessage();
+  } else {
     socket.emit("typing", user.name);
-  };
+  }
+};
 
   const deleteMsg = (id) => {
     socket.emit("deleteMessage", id);

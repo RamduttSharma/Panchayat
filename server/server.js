@@ -15,9 +15,10 @@ const server = http.createServer(app);
 // Socket setup
 const io = new Server(server, {
     cors: {
-        origin: "*",
+        origin: "*", // ya specific vercel URL
+        methods: ["GET", "POST"],
     },
-});
+}); 
 
 // Middleware
 app.use(cors());
@@ -47,7 +48,7 @@ app.post("/upload", upload.single("file"), (req, res) => {
 });
 
 app.get("/", (req, res) => {
-  res.send("Backend is running 🚀");
+    res.send("Backend is running 🚀");
 });
 
 // Message Model
