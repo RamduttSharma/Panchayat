@@ -215,6 +215,7 @@ const Chat = () => {
       {/* INPUT */}
       <div
         style={{
+          width: "1vh",
           display: "flex",
           padding: "10px",
           background: dark ? "#2A2A2A" : "#f0f0f0",
