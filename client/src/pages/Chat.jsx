@@ -1,11 +1,8 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { socket } from "../socket/socket";
 import { getUser } from "../utils/generateUser";
 
 const Chat = () => {
-  const inputRef = useRef(null);
-  const chatRef = useRef(null); // ✅ NEW
-
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState("");
@@ -46,20 +43,13 @@ const Chat = () => {
     return () => socket.off();
   }, []);
 
-  // ✅ FIXED AUTO SCROLL (no jump)
+  // ❌ OLD SIMPLE SCROLL (same as before)
   useEffect(() => {
-    const el = chatRef.current;
-    if (!el) return;
-
-    const isNearBottom =
-      el.scrollHeight - el.scrollTop - el.clientHeight < 100;
-
-    if (isNearBottom) {
-      el.scrollTop = el.scrollHeight;
-    }
+    const chatBox = document.getElementById("chatBox");
+    if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
   }, [messages]);
 
-  // Send message
+  // SEND MESSAGE
   const sendMessage = async () => {
     if (!input.trim() && !file) return;
 
@@ -88,11 +78,6 @@ const Chat = () => {
 
     setInput("");
     setFile(null);
-
-    // ✅ FIXED focus (no scroll jump)
-    requestAnimationFrame(() => {
-      inputRef.current?.focus();
-    });
   };
 
   const handleTyping = (e) => {
@@ -147,7 +132,6 @@ const Chat = () => {
       {/* CHAT */}
       <div
         id="chatBox"
-        ref={chatRef} // ✅ NEW
         style={{
           flex: 1,
           overflowY: "auto",
@@ -263,7 +247,6 @@ const Chat = () => {
         </label>
 
         <input
-          ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleTyping}
