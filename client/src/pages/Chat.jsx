@@ -122,6 +122,7 @@ const Chat = () => {
           position: "sticky",   // 🔥 important
           top: 0,
           zIndex: 20,
+          boxShadow: "0 2px 5px rgba(0,0,0,0.2)"
         }}
       >
         <div>
