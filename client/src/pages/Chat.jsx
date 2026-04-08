@@ -4,7 +4,7 @@ import { getUser } from "../utils/generateUser";
 
 const Chat = () => {
   const inputRef = useRef(null);
-  const chatRef = useRef(null);
+  const chatRef = useRef(null); // ✅ NEW
 
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
@@ -22,6 +22,10 @@ const Chat = () => {
   };
 
   useEffect(() => {
+    socket.on("connect", () => {
+      console.log("Connected:", socket.id);
+    });
+
     socket.on("loadMessages", setMessages);
 
     socket.on("receiveMessage", (msg) => {
@@ -42,7 +46,7 @@ const Chat = () => {
     return () => socket.off();
   }, []);
 
-  // ✅ SMART AUTO SCROLL (NO JUMP)
+  // ✅ FIXED AUTO SCROLL (no jump)
   useEffect(() => {
     const el = chatRef.current;
     if (!el) return;
@@ -55,7 +59,7 @@ const Chat = () => {
     }
   }, [messages]);
 
-  // SEND MESSAGE
+  // Send message
   const sendMessage = async () => {
     if (!input.trim() && !file) return;
 
@@ -85,7 +89,7 @@ const Chat = () => {
     setInput("");
     setFile(null);
 
-    // ✅ focus without scroll jump
+    // ✅ FIXED focus (no scroll jump)
     requestAnimationFrame(() => {
       inputRef.current?.focus();
     });
@@ -110,7 +114,6 @@ const Chat = () => {
         height: "100dvh",
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden", // 🔥 prevent page jump
         background: dark ? "#121212" : "#ECE5DD",
         color: dark ? "white" : "black",
       }}
@@ -124,9 +127,11 @@ const Chat = () => {
           display: "flex",
           justifyContent: "space-between",
           alignItems: "center",
+          flexWrap: "wrap",
           position: "sticky",
           top: 0,
           zIndex: 20,
+          boxShadow: "0 2px 5px rgba(0,0,0,0.2)",
         }}
       >
         <div>
@@ -134,19 +139,20 @@ const Chat = () => {
           <small>🟢 {online} online</small>
         </div>
 
-        <button onClick={toggleTheme}>
+        <button onClick={toggleTheme} style={{ padding: "5px 10px" }}>
           {dark ? "☀️" : "🌙"}
         </button>
       </div>
 
       {/* CHAT */}
       <div
-        ref={chatRef}
+        id="chatBox"
+        ref={chatRef} // ✅ NEW
         style={{
           flex: 1,
           overflowY: "auto",
-          padding: "10px",
-          WebkitOverflowScrolling: "touch",
+          padding: "8px",
+          background: dark ? "#1E1E1E" : "#ECE5DD",
         }}
       >
         {messages.map((msg) => {
@@ -165,18 +171,65 @@ const Chat = () => {
             >
               <div
                 style={{
-                  background: isMe ? "#DCF8C6" : "#fff",
+                  background: isMe
+                    ? dark
+                      ? "#056162"
+                      : "#DCF8C6"
+                    : dark
+                    ? "#2A2A2A"
+                    : "#fff",
+                  color: dark ? "white" : "black",
                   padding: "10px",
                   borderRadius: "10px",
                   maxWidth: "75%",
+                  wordBreak: "break-word",
+                  position: "relative",
                 }}
               >
-                <b>{msg.sender}</b>
+                <b style={{ fontSize: "12px" }}>{msg.sender}</b>
+
                 {msg.text && <div>{msg.text}</div>}
+
+                {msg.file && (
+                  <img
+                    src={msg.file}
+                    alt="file"
+                    style={{
+                      maxWidth: "100%",
+                      borderRadius: "8px",
+                      marginTop: "5px",
+                    }}
+                  />
+                )}
+
+                <div style={{ fontSize: "10px", marginTop: "5px" }}>
+                  {msg.time}
+                </div>
+
+                {isMe && (
+                  <button
+                    onClick={() => deleteMsg(msg._id)}
+                    style={{
+                      position: "absolute",
+                      top: "5px",
+                      right: "5px",
+                      background: "transparent",
+                      border: "none",
+                      cursor: "pointer",
+                    }}
+                  >
+                    ❌
+                  </button>
+                )}
               </div>
             </div>
           );
         })}
+      </div>
+
+      {/* TYPING */}
+      <div style={{ fontSize: "12px", paddingLeft: "10px" }}>
+        {typing}
       </div>
 
       {/* INPUT */}
@@ -184,11 +237,31 @@ const Chat = () => {
         style={{
           display: "flex",
           padding: "8px",
-          background: "#f0f0f0",
+          background: dark ? "#2A2A2A" : "#f0f0f0",
           gap: "5px",
           alignItems: "center",
+          position: "sticky",
+          bottom: 0,
+          zIndex: 10,
         }}
       >
+        <label
+          style={{
+            background: "#075E54",
+            color: "white",
+            padding: "8px",
+            borderRadius: "50%",
+            cursor: "pointer",
+          }}
+        >
+          📎
+          <input
+            type="file"
+            onChange={(e) => setFile(e.target.files[0])}
+            style={{ display: "none" }}
+          />
+        </label>
+
         <input
           ref={inputRef}
           value={input}
@@ -199,10 +272,24 @@ const Chat = () => {
             flex: 1,
             padding: "10px",
             borderRadius: "20px",
+            border: "none",
+            outline: "none",
           }}
         />
 
-        <button onClick={sendMessage}>Send</button>
+        <button
+          onClick={sendMessage}
+          style={{
+            background: "#075E54",
+            color: "white",
+            border: "none",
+            borderRadius: "50%",
+            width: "40px",
+            height: "40px",
+          }}
+        >
+          ➤
+        </button>
       </div>
     </div>
   );
