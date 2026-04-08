@@ -119,6 +119,9 @@ const Chat = () => {
           justifyContent: "space-between",
           alignItems: "center",
           flexWrap: "wrap",
+          position: "sticky",   // 🔥 important
+          top: 0,
+          zIndex: 20,
         }}
       >
         <div>
@@ -226,6 +229,9 @@ const Chat = () => {
           background: dark ? "#2A2A2A" : "#f0f0f0",
           gap: "5px",
           alignItems: "center",
+          position: "sticky",
+          bottom: 0,
+          zIndex: 10,
         }}
       >
         <label
