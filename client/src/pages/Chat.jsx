@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { socket } from "../socket/socket";
 import { getUser } from "../utils/generateUser";
 
 const Chat = () => {
+  const inputRef = useRef(null);
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [typing, setTyping] = useState("");
@@ -78,6 +79,10 @@ const Chat = () => {
 
     setInput("");
     setFile(null);
+
+    setTimeout(() => {
+  inputRef.current?.focus({ preventScroll: true });
+}, 0);
   };
 
   // Enter + typing
@@ -241,6 +246,7 @@ const Chat = () => {
         </label>
 
         <input
+          ref={inputRef}
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleTyping}
